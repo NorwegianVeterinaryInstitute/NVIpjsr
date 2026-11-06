@@ -33,6 +33,7 @@ Imports:
     DBI,
     dplyr,
     stats,
+    tools,
     NVIcheckmate (>= 0.7.0),
     NVIdb (>= 0.11.2)
 Suggests: 
