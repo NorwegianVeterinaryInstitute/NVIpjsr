@@ -78,8 +78,8 @@ A named list with selection parameters that can be used to generate
 Sets the disease selection parameters and store them in a list
     object. The list follows a standardised named format and the elements can
     be used as input to
-    \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}}
-    or \code{\link{build_query_outbreak}}.
+    \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}},
+    \code{\link{build_query_single_disease}}, or \code{\link{build_query_outbreak}}.
 }
 \details{
 Saker in PJS that concern one infection / disease can be characterised
