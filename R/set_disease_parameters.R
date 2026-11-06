@@ -285,8 +285,8 @@ set_disease_parameters <- function(purpose = NULL,
                                                     detectDates = TRUE)
         selection_parameters <- selection_parameters[which(selection_parameters$uttrekk == purpose), ]
         selection_parameters <- selection_parameters[which(selection_parameters$variabel %in% var2select_template), ]
-        selection_parameters <- aggregate(kode ~ variabel, data = selection_parameters, FUN = c)
-        selection_parameters <- setNames(selection_parameters$kode, selection_parameters$variabel)
+        selection_parameters <- stats::aggregate(kode ~ variabel, data = selection_parameters, FUN = c)
+        selection_parameters <- stats::setNames(selection_parameters$kode, selection_parameters$variabel)
 
       }
     }
