@@ -120,7 +120,7 @@ select_PJSdata_for_value <- function(data,
     dplyr::rowwise() |>
     dplyr::mutate(select = max(unlist(lapply(value_2_check, grep, x = combined_codes)), 0))
 
- if (class(keep_selected) == "logical") {
+ if (inherits(keep_selected, what = "logical")) {
     ktr$select <- as.logical(ktr$select)
     if (isFALSE(keep_selected)) {ktr$select <- !ktr$select}
 
@@ -132,7 +132,7 @@ select_PJSdata_for_value <- function(data,
     data <- merge(x = ktr, y = data, by = c(index, code_column), all.x = TRUE, all.y = FALSE, sort = TRUE)
     data <- data[, column_names]
   }
- if (class(keep_selected) == "character") {
+ if (inherits(keep_selected, what = "character")) {
       column_names <- c(colnames(data), c("select"))
     data <- merge(x = ktr, y = data, by = c(index, code_column), all.x = TRUE, all.y = FALSE, sort = TRUE)
     data <- data[, column_names]
