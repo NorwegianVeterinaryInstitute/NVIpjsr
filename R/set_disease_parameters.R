@@ -104,8 +104,8 @@ NULL
 #' @description Sets the disease selection parameters and store them in a list
 #'     object. The list follows a standardised named format and the elements can
 #'     be used as input to
-#'     \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}}
-#'     or \code{\link{build_query_outbreak}}.
+#'     \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}},
+#'     \code{\link{build_query_single_disease}}, or \code{\link{build_query_outbreak}}.
 #'
 #' @details Saker in PJS that concern one infection / disease can be characterised
 #'     by the "analytt" (at "konklusjon" and/or "resultat" level), specific "hensikter",
@@ -260,19 +260,34 @@ set_disease_parameters <- function(purpose = NULL,
                          comment = "The argument selection_parameter must either be a file with selection parameters or a list with selection parameters",
                          add = checks)
     if (isTRUE(checkmate::check_file_exists(x = selection_parameters, access = "r"))) {
-      script <- as.character(parse(file = selection_parameters, encoding = "UTF-8"))
+      if (toupper(tools::file_ext(selection_parameters)) == "R") {
+        script <- as.character(parse(file = selection_parameters, encoding = "UTF-8"))
 
-      script <- script[grepl(pattern = paste0("[^",
-                                              paste(var2select_template, collapse = "|^"),
-                                              "]",
-                                              "[[:blank:]]*",
-                                              "[=|<\\-]"),
-                             script)]
+        script <- script[grepl(pattern = paste0("[^",
+                                                paste(var2select_template, collapse = "|^"),
+                                                "]",
+                                                "[[:blank:]]*",
+                                                "[=|<\\-]"),
+                               script)]
 
-      for (i in 1:length(script)) {
-        sub("[[:blank:]]*<\\-[[:blank:]]*", " <- ", script[i])
-        sub("[[:blank:]]*[=][[:blank:]]*", " = ", script[i])
-        eval(parse(text = script[i]))
+        for (i in 1:length(script)) {
+          sub("[[:blank:]]*<\\-[[:blank:]]*", " <- ", script[i])
+          sub("[[:blank:]]*[=][[:blank:]]*", " = ", script[i])
+          eval(parse(text = script[i]))
+        }
+      }
+      if (tolower(tools::file_ext(selection_parameters)) == "xlsx") {
+        # Reads Excel file with selection parameters
+        # Filters for purpose and aggregates all codes for one variable into one vector
+        # Creates a list with the structure as input to the argument selection_parameters
+        # The list is used as input to the next step
+        selection_parameters <- openxlsx::read.xlsx(xlsxFile = selection_parameters,
+                                                    detectDates = TRUE)
+        selection_parameters <- selection_parameters[which(selection_parameters$uttrekk == purpose), ]
+        selection_parameters <- selection_parameters[which(selection_parameters$variabel %in% var2select_template), ]
+        selection_parameters <- aggregate(kode ~ variabel, data = selection_parameters, FUN = c)
+        selection_parameters <- setNames(selection_parameters$kode, selection_parameters$variabel)
+
       }
     }
     if (isTRUE(checkmate::check_list(x = selection_parameters))) {
