@@ -32,6 +32,7 @@ Imports:
     data.table,
     DBI,
     dplyr,
+    openxlsx,
     stats,
     tools,
     NVIcheckmate (>= 0.7.0),
