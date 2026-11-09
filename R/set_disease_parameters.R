@@ -284,14 +284,17 @@ set_disease_parameters <- function(purpose = NULL,
         # The list is used as input to the next step
         selection_parameters <- openxlsx::read.xlsx(xlsxFile = selection_parameters,
                                                     detectDates = TRUE)
-        NVIcheckmate::assert_choice_character(purpose, unique(selection_parameters$uttrekk), ignore.case = TRUE,
-                                              comment = "The columne 'uttrekk' in the Excel sheet must include the variable 'purpose'",
-                                              add = checks)
-        selection_parameters <- selection_parameters[which(tolower(selection_parameters$uttrekk) == tolower(purpose)), ]
-        selection_parameters <- selection_parameters[which(selection_parameters$variabel %in% var2select_template), ]
-        selection_parameters <- stats::aggregate(kode ~ variabel, data = selection_parameters, FUN = c)
-        selection_parameters <- stats::setNames(selection_parameters$kode, selection_parameters$variabel)
-
+        NVIcheckmate::assert(checkmate::check_string(min.chars = 1),
+                             checkmate::check_choice_character(purpose, unique(selection_parameters$uttrekk), ignore.case = TRUE),
+                             combine = "and",
+                             comment = "The columne 'uttrekk' in the Excel sheet must include the variable 'purpose'",
+                             add = checks)
+        parameters <- selection_parameters[which(tolower(selection_parameters$uttrekk) == tolower(purpose)), ]
+        parameters <- parameters[which(parameters$variabel %in% var2select_template), ]
+        if (nrows(parameters) > 0) { #To avoid error in aggregate because of no data
+          parameters <- stats::aggregate(kode ~ variabel, data = parameters, FUN = c)
+          parameters <- stats::setNames(parameters$kode, parameters$variabel)
+        }
       }
     }
     if (isTRUE(checkmate::check_list(x = selection_parameters))) {
