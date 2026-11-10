@@ -1,10 +1,14 @@
-# NVIpjsr 0.2.2.9004 - (2026-##-##)
+# NVIpjsr 0.2.2.9006 - (2026-##-##)
 
 ## New features:
 
 - For `add_PJS_code_description` the default value for the input arguments `PJS_variable_type` and `new_column` is set to "auto".
 
 - created `build_query_single_disease` for retrieving all data for one disease/agent from PJS.
+
+- `select_PJSdata_for_value` can now output the information on whether a row is selected or not in an additional column.
+
+- `set_disease_parameters` now reads an Excel-file with selection parameters.
 
 
 ## Bug fixes:
