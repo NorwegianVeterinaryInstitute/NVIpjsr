@@ -291,7 +291,7 @@ set_disease_parameters <- function(purpose = NULL,
                              add = checks)
         selection_parameters <- selection_parameters[which(tolower(selection_parameters$purpose) == tolower(purpose)), ]
         selection_parameters <- selection_parameters[which(selection_parameters$variabel %in% var2select_template), ]
-        if (nrow(selection_parameters) > 0) { #To avoid error in aggregate because of no data
+        if (nrow(selection_parameters) > 0) { # To avoid error in aggregate because of no data
           selection_parameters <- stats::aggregate(kode ~ variabel, data = selection_parameters, FUN = c)
           selection_parameters <- stats::setNames(selection_parameters$kode, selection_parameters$variabel)
           if (inherits(selection_parameters$FUN, what = "character")) {selection_parameters$FUN <- match.fun(selection_parameters$FUN)}
