@@ -8,6 +8,8 @@
 
 - `select_PJSdata_for_value` can now output the information on whether a row is selected or not in an additional column.
 
+- `set_disease_parameters` now reads an Excel-file with selection parameters.
+
 
 ## Bug fixes:
 
