@@ -10,6 +10,8 @@
 
 - `set_disease_parameters` now reads an Excel-file with selection parameters.
 
+- `read_eos_data` now accepts different coluns in current and historic data. The column fagnr is removed, if it prevously was generated.
+
 
 ## Bug fixes:
 
