@@ -99,9 +99,7 @@ read_eos_data <- function(
                                  showProgress = FALSE,
                                  data.table = FALSE,
                                  ...)
-
-  column_names <- colnames(eos_data)
-  colnames(eos_data) <- tolower(column_names)
+  colnames(eos_data) <- tolower(colnames(eos_data))
 
   # Import av historiske data fra EOS
   # EOS-historikkfiler oppdateres 1 x årlig. Data hentes ut etter oppdatering og lagres i csv-filer
@@ -120,7 +118,7 @@ read_eos_data <- function(
     # This is done by taking all years from the current table and all previous
     # years from the historic table. Thereafter the tables are combined.
     first_year_in_eos_data <- min(substr(eos_data$saksnr, 1, 4))
-    colnames(eos_data_historikk) <- tolower(column_names)
+    colnames(eos_data_historikk) <- tolower(colnames(eos_data_historikk))
     # eos_data_historikk <- subset(eos_data_historikk, substr(eos_data_historikk$saksnr, 1, 4) < first_year_in_eos_data)
     eos_data_historikk <- eos_data_historikk[which(substr(eos_data_historikk$saksnr, 1, 4) < first_year_in_eos_data), ]
     # align columns before rbind, remove fagnr
@@ -136,8 +134,8 @@ read_eos_data <- function(
     eos_data <- eos_data[which(substr(eos_data$saksnr, 1, 4) %in% year), ]
   }
 
-# Is this necessary?
-  colnames(eos_data) <- column_names
+# # Is this necessary?
+#   colnames(eos_data) <- column_names
 
 # RETURN DATA ----
   return(eos_data)
