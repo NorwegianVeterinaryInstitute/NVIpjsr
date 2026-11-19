@@ -276,9 +276,9 @@ build_query_single_disease <- function(period,
 
   # REMOVE EXTRA SPACES FROM SELECT QUERIES
   for (i in c(1:length(select_statement))) {
-    select_statement[[i]] <- gsub("\\s+", " ", select_statement[[i]])      # multiple spaces -> one
+    select_statement[[i]] <- gsub("\\s+", " ", select_statement[[i]]) # multiple spaces -> one
     select_statement[[i]] <- gsub("\\(\\s+", "\\(", select_statement[[i]]) # remove space after (
-    select_statement[[i]] <- gsub("\\s+)", ")", select_statement[[i]])     # remove space before )
+    select_statement[[i]] <- gsub("\\s+)", ")", select_statement[[i]]) # remove space before )
   }
 
 

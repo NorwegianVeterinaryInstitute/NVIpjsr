@@ -6,7 +6,7 @@
 \usage{
 build_query_single_disease(
   period,
-  analytt = NULL,
+  analytt,
   hensikt = NULL,
   metode = NULL,
   utbrudd = NULL,
