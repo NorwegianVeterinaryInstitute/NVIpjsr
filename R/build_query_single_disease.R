@@ -81,7 +81,7 @@
 #'   )
 #'
 build_query_single_disease <- function(period,
-                                       analytt = NULL,
+                                       analytt,
                                        hensikt = NULL,
                                        metode = NULL,
                                        utbrudd = NULL,
