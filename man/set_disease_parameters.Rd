@@ -64,8 +64,9 @@ A select statement written as SQL code, see \code{\link{retrieve_PJSdata}}.
     Defaults to \code{NULL}.}
 
 \item{selection_parameters}{[\code{character(1)}] | [\code{list(1)}]\cr
-Either the path and file name for an R script that can be sourced and that
-    sets the selection parameters or a named list with the selection parameters
+Either the path and file name for an Excel file with selection parameters
+    in a table format, an R script that can be sourced and sets the selection
+    parameters when run or a named list with the selection parameters
     (i.e. equal to the output of this function). Defaults to \code{NULL}.}
 
 \item{\dots}{Other arguments to be passed to \code{set_disease_parameters}.}
@@ -78,8 +79,8 @@ A named list with selection parameters that can be used to generate
 Sets the disease selection parameters and store them in a list
     object. The list follows a standardised named format and the elements can
     be used as input to
-    \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}}
-    or \code{\link{build_query_outbreak}}.
+    \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}},
+    \code{\link{build_query_single_disease}}, or \code{\link{build_query_outbreak}}.
 }
 \details{
 Saker in PJS that concern one infection / disease can be characterised

@@ -140,8 +140,8 @@ test_that("Errors or warnings for select_PJSdata_for_value", {
   expect_error(select_PJSdata_for_value(data = df,
                                         code_column = "code1",
                                         value_2_check = "01",
-                                        keep_selected = "TRUE"),
-               regexp = "Variable 'keep_selected': Must be of type 'logical flag'")
+                                        keep_selected = 1),
+               regexp = "Variable 'keep_selected': One of the following must apply:")
 
   options(width = unlist(linewidth))
 })

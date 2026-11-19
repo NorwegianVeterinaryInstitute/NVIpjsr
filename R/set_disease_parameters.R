@@ -104,8 +104,8 @@ NULL
 #' @description Sets the disease selection parameters and store them in a list
 #'     object. The list follows a standardised named format and the elements can
 #'     be used as input to
-#'     \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}}
-#'     or \code{\link{build_query_outbreak}}.
+#'     \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}},
+#'     \code{\link{build_query_single_disease}}, or \code{\link{build_query_outbreak}}.
 #'
 #' @details Saker in PJS that concern one infection / disease can be characterised
 #'     by the "analytt" (at "konklusjon" and/or "resultat" level), specific "hensikter",
@@ -172,8 +172,9 @@ NULL
 #'     If \code{NULL}, it is set to "always" when \code{art2select} includes \code{NA}, else it is set to "never".
 #'     Defaults to \code{NULL}.
 #' @param selection_parameters [\code{character(1)}] | [\code{list(1)}]\cr
-#' Either the path and file name for an R script that can be sourced and that
-#'     sets the selection parameters or a named list with the selection parameters
+#' Either the path and file name for an Excel file with selection parameters
+#'     in a table format, an R script that can be sourced and sets the selection
+#'     parameters when run or a named list with the selection parameters
 #'     (i.e. equal to the output of this function). Defaults to \code{NULL}.
 #' @param FUN [\code{function}]\cr
 #' Function to build the selection statement, see \code{\link{retrieve_PJSdata}}.
@@ -260,19 +261,41 @@ set_disease_parameters <- function(purpose = NULL,
                          comment = "The argument selection_parameter must either be a file with selection parameters or a list with selection parameters",
                          add = checks)
     if (isTRUE(checkmate::check_file_exists(x = selection_parameters, access = "r"))) {
-      script <- as.character(parse(file = selection_parameters, encoding = "UTF-8"))
+      if (toupper(tools::file_ext(selection_parameters)) == "R") {
+        script <- as.character(parse(file = selection_parameters, encoding = "UTF-8"))
 
-      script <- script[grepl(pattern = paste0("[^",
-                                              paste(var2select_template, collapse = "|^"),
-                                              "]",
-                                              "[[:blank:]]*",
-                                              "[=|<\\-]"),
-                             script)]
+        script <- script[grepl(pattern = paste0("[^",
+                                                paste(var2select_template, collapse = "|^"),
+                                                "]",
+                                                "[[:blank:]]*",
+                                                "[=|<\\-]"),
+                               script)]
 
-      for (i in 1:length(script)) {
-        sub("[[:blank:]]*<\\-[[:blank:]]*", " <- ", script[i])
-        sub("[[:blank:]]*[=][[:blank:]]*", " = ", script[i])
-        eval(parse(text = script[i]))
+        for (i in 1:length(script)) {
+          sub("[[:blank:]]*<\\-[[:blank:]]*", " <- ", script[i])
+          sub("[[:blank:]]*[=][[:blank:]]*", " = ", script[i])
+          eval(parse(text = script[i]))
+        }
+      }
+      if (tolower(tools::file_ext(selection_parameters)) == "xlsx") {
+        # Reads Excel file with selection parameters
+        # Filters for purpose and aggregates all codes for one variable into one vector
+        # Creates a list with the structure as input to the argument selection_parameters
+        # The list is used as input to the next step
+        selection_parameters <- openxlsx::read.xlsx(xlsxFile = selection_parameters,
+                                                    detectDates = TRUE)
+        NVIcheckmate::assert(checkmate::check_string(purpose, min.chars = 1),
+                             checkmate::check_choice(tolower(purpose), tolower(unique(selection_parameters$purpose))),
+                             combine = "and",
+                             comment = "The columne 'purpose' in the Excel sheet must include the variable 'purpose'",
+                             add = checks)
+        selection_parameters <- selection_parameters[which(tolower(selection_parameters$purpose) == tolower(purpose)), ]
+        selection_parameters <- selection_parameters[which(selection_parameters$variabel %in% var2select_template), ]
+        if (nrow(selection_parameters) > 0) { # To avoid error in aggregate because of no data
+          selection_parameters <- stats::aggregate(kode ~ variabel, data = selection_parameters, FUN = c)
+          selection_parameters <- stats::setNames(selection_parameters$kode, selection_parameters$variabel)
+          if (inherits(selection_parameters$FUN, what = "character")) {selection_parameters$FUN <- match.fun(selection_parameters$FUN)}
+        }
       }
     }
     if (isTRUE(checkmate::check_list(x = selection_parameters))) {
