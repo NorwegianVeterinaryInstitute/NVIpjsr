@@ -266,15 +266,7 @@ build_query_single_disease <- function(period,
                                 "WHERE", sql_snippet_sak_year, "AND",
                                 paste0("(", sql_snippet_sakskonkl_analytt, ")"))
 
-  # REMOVE EXTRA SPACES FROM SELECT QUERIES
-  for (query in c(query_v_sak_prove_konkl, query_v_sak_prove_res, query_sakskonklusjon)) {
-    query <- gsub("\\s+", " ", query) # multiple spaces -> one
-    query <- gsub("\\(\\s+", "\\(", query) # remove space after (
-    query <- gsub("\\s+)", ")", query) # remove space before )
-  }
-
-  # RETURN SELECT QUERIES
-  # Combine queries into list
+  # COMBINE QUERIES INTO LIST
   # Each select statment is given name after the main table for the selection query
   select_statement <- list("v_sak_prove_konkl" = query_v_sak_prove_konkl,
                            "v_sak_prove_res" = query_v_sak_prove_res,
@@ -282,7 +274,16 @@ build_query_single_disease <- function(period,
                            "v2_sak_m_res" = query_v2_sak_m_res,
                            "v_sakskonklusjon" = query_sakskonklusjon)
 
+  # REMOVE EXTRA SPACES FROM SELECT QUERIES
+  for (i in c(1:length(select_statement))) {
+    i <- 1
+    select_statement[[i]] <- gsub("\\s+", " ", select_statement[[i]])      # multiple spaces -> one
+    select_statement[[i]] <- gsub("\\(\\s+", "\\(", select_statement[[i]]) # remove space after (
+    select_statement[[i]] <- gsub("\\s+)", ")", select_statement[[i]])     # remove space before )
+  }
 
+
+  # RETURN SELECT QUERIES
   # return list
   return(select_statement)
 }
