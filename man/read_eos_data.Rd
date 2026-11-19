@@ -39,8 +39,8 @@ The encoding, one of c("UTF-8", "latin1"). Defaults to \code{"UTF-8"}.}
 A data frame with data from EOS.
 }
 \description{
-Reads EOS data from RaData. Includes historical data if these exists.
-    It is possible to limit the data to one or more years.
+Reads EOS data from RaData. Includes historical data if these
+    exists. It is possible to limit the data to one or more years.
 }
 \details{
 \code{read_eos_data} uses
@@ -50,7 +50,8 @@ Reads EOS data from RaData. Includes historical data if these exists.
     \ifelse{html}{\code{\link[data.table:fread]{data.table::fread}}}{\code{data.table::fread}}
     if necessary.
 
-The \code{eos_table} name is the same name as the name as in the EOS data base.
+The \code{eos_table} name is the same name as the name as in the EOS data
+    base.
 }
 \examples{
 \dontrun{

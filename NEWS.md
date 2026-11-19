@@ -4,11 +4,13 @@
 
 - For `add_PJS_code_description` the default value for the input arguments `PJS_variable_type` and `new_column` is set to "auto".
 
-- created `build_query_single_disease` for retrieving all data for one disease/agent from PJS.
+- created `build_query_single_disease` for retrieving all data for one agent and the corresponding disease from PJS.
 
 - `select_PJSdata_for_value` can now output the information on whether a row is selected or not in an additional column.
 
 - `set_disease_parameters` now reads an Excel-file with selection parameters.
+
+- `read_eos_data` now accepts different columns in current and historic data. The column fagnr is removed, if it prevously was generated.
 
 
 ## Bug fixes:
