@@ -2,18 +2,18 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
--   [Overview](#overview)
--   [Installation](#installation)
--   [Usage](#usage)
--   [Copyright and license](#copyright-and-license)
--   [Contributing](#contributing)
+- [Overview](#overview)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Copyright and license](#copyright-and-license)
+- [Contributing](#contributing)
 
 ## Overview
 
 `NVIpjsr`tools for retrieving, standardising, wrangling, preparing and
 reporting PJS data and EOS data. NVIpjsr was created by separating out
 PJS-functions from NVIdb. Further development of and creation of new
-PJS-functions will take place within NVIpjsr.
+functions to handle PJSdata are done within NVIpjsr.
 
 `NVIpjsr` is part of `NVIverse`, a collection of R-packages with tools
 to facilitate data management and data reporting at the Norwegian
@@ -50,9 +50,9 @@ with vignettes for all `NVIverse` packages except
 
 To install `NVIpjsr` you will need:
 
--   R version &gt; 4.1.0
--   R package `remotes`
--   Rtools version 4.0, 4.2, 4.3, 4.4 or 4.5 depending on R version
+- R version &gt; 4.1.0
+- R package `remotes`
+- Rtools version 4.0, 4.2, 4.3, 4.4 or 4.5 depending on R version
 
 First install and attach the `remotes` package.
 
@@ -98,7 +98,7 @@ The `NVIpjsr` package needs to be attached.
 `NVIpjsr` tools for retrieving, standardising, wrangling, preparing and
 reporting PJS data and EOS data. NVIpjsr was created by separating out
 PJS-functions from NVIdb. Further development of and creation of new
-PJS-functions will take place within NVIpjsr.
+functions to handle PJSdata are done within NVIpjsr.
 
 #### Further documentation
 
@@ -117,9 +117,9 @@ Consult the vignettes for task-oriented help.
 
 Vignettes in package `NVIpjsr`:
 
--   Contribute to NVIpjsr (html)  
--   NVIpjsr reference manual (pdf)  
--   Retrieve and standardise PJS-data (html)
+- Contribute to NVIpjsr (html)  
+- NVIpjsr reference manual (pdf)  
+- Retrieve and standardise PJS-data (html)
 
 ##### NEWS
 

@@ -118,8 +118,9 @@ NULL
 #'
 #' The select statement for PJS can be built giving the selection parameters and
 #'     input to one of the build_query-functions, i.e.
-#'    \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}}
-#'     and \code{\link{build_query_outbreak}}.
+#'    \code{\link{build_query_hensikt}}, \code{\link{build_query_one_disease}},
+#'    \code{\link{build_query_single_disease}} and
+#'    \code{\link{build_query_outbreak}}.
 #'     The selection parameters can be set by using
 #'     \code{\link{set_disease_parameters}}
 #'     or by giving a list of similar format for input to
@@ -148,6 +149,11 @@ NULL
 #'    or use the R-package "RODBC" instead by giving the argument
 #'    \code{dbinterface = "RODBC"}.
 #'
+#' If errors arise due to login problems to MS-SQL and you are using package
+#'    \code{odbc} (the default), you may try to change to package \code{RODBC}.
+#'    Such errors will often refer to something like \code{nanodbc}, which is
+#'    the interface between \code{odbc} and MS-SQL.
+#'
 #' The output is a named list where each entry is a data frame with PJS data. If
 #'     the select statement is named, the returned data frame will have that name.
 #'     If the select statement is unnamed, it will try to identify the first
@@ -159,7 +165,7 @@ NULL
 #' @param year [\code{numeric}]\cr
 #' One year or a vector giving the first and last years that should be selected.
 #'     Defaults to \code{NULL}.
-#' @param selection_parameters [\code{character(1)}]\cr
+#' @param selection_parameters [\code{character(1)} | \code{list}]\cr
 #' Either the path and file name for an R script that can be sourced and that
 #'     sets the selection parameters or a named list with the selection parameters
 #'     (i.e. of the same format as the output of

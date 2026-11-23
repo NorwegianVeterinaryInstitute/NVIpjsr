@@ -1,3 +1,41 @@
+# NVIpjsr 0.3.0 - (2026-11-19)
+
+## New features:
+
+- For `add_PJS_code_description` the default value for the input arguments `PJS_variable_type` and `new_column` is set to "auto".
+
+- created `build_query_single_disease` for retrieving all data for one agent and the corresponding disease from PJS.
+
+- `select_PJSdata_for_value` can now output the information on whether a row is selected or not in an additional column.
+
+- `set_disease_parameters` now reads an Excel-file with selection parameters.
+
+- `read_eos_data` now accepts different columns in current and historic data. The column fagnr is removed, if it prevously was generated.
+
+
+## Bug fixes:
+
+- Input for the argument `values_2_select` in `select_PJSdata_for_value` is changed so that
+the input should be the same wether there is one ore several columns for which the rows should be selected.
+
+- `standardize_PJSdata` now removes the column "konkl_provenr" correctly from PJSdata source data.
+
+
+## Other changes:
+
+- Minor improvements of help for several functions.
+
+- `which` is used instead of `subset` to make the code more robust.
+
+- Uses `assert_string` and `assert_flag` in arguent checking when appropriate.
+
+
+## BREAKING CHANGES:
+
+- Input for the argument `values_2_select` in `select_PJSdata_for_value` is changed when several columns are
+included in `code_column`. Old input should be rewritten to a vector with the single values.
+
+
 # NVIpjsr 0.2.2 - (2026-02-11)
 
 ## New features:
@@ -11,7 +49,7 @@ are c("odbc", "RODBC").
 - An error when using `retrieve_PJSdata` due to changing format of merknad to
 nvarchar(MAX) is fixed. This occured due to using `dbinterface = "odbc"`.
 
-- `standardize_PJSdata` now correct generates the "fagnr" when the data have been retrieved using "odbc".
+- `standardize_PJSdata` now correctly generates the "fagnr" when the data have been retrieved using "odbc".
 
 
 ## Other changes:

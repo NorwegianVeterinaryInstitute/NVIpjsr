@@ -21,9 +21,11 @@ Vector with the column names for the variables that is used in the selection.}
 \item{value_2_check}{[\code{character}]\cr
 Vector with the values that should be selected, see details and examples.}
 
-\item{keep_selected}{[\code{logical(1)}]\cr
-If \code{TRUE}, the selected rows are included, if \code{FALSE}, the selected columns
-    are excluded. Defaults to \code{TRUE}.}
+\item{keep_selected}{[\code{logical(1)}] | [\code{character(1)}]\cr
+If \code{TRUE}, the selected rows are included, if \code{FALSE}, the selected
+    columns are excluded, if a character, all rows are included with an
+    additional column given the name of the character string. Defaults to
+    \code{TRUE}.}
 }
 \value{
 A \code{data.frame}.
@@ -39,9 +41,33 @@ The function is intended for cases where the select
    is included and it can be easier to read the script if the
    subset is selected in a second step.
 
+When there are more than one columns in \code{code_column}, the row
+   is selected if a value in \code{value_2_select} is found in at least one
+   of the columns in \code{code_column}.
+
 The function selects according to different values. The default
    action is to include the selected rows. But when \code{keep_selected
-   = FALSE}, the selected rows are excluded from the data.
+   = FALSE}, the selected rows are excluded from the data. Do not
+   set \code{keep_selected = FALSE} when there are more than one column in
+   \code{code_column}, as this may give unpredictable results.
+
+If you give a character value to \code{keep_selected}, the value of whether
+   a row was selected or not is output in an extra column with the name of
+   the character argument to \code{keep_selected}. All rows are then kept in
+   the data. This may be useful when more control of the inclusion and
+   exclusion is needed.
+}
+\examples{
+\dontrun{
+library(NVIpjsr)
+
+# Only included rows that have one of the codes in at least one of the selected columns
+PJSdata <- select_PJSdata_for_value(
+  data = PJSdata,
+  code_column = c("sakskonkl_analyttkode", "konkl_analyttkode", "res_analyttkode"),
+  value_2_check = c("01050305", "01130402", "01150101\%"))
+}
+
 }
 \author{
 Petter Hopp Petter.Hopp@vetinst.no

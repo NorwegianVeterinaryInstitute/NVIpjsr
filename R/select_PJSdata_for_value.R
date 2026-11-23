@@ -7,9 +7,21 @@
 #'    is included and it can be easier to read the script if the
 #'    subset is selected in a second step.
 #'
+#' When there are more than one columns in \code{code_column}, the row
+#'    is selected if a value in \code{value_2_select} is found in at least one
+#'    of the columns in \code{code_column}.
+#'
 #' The function selects according to different values. The default
 #'    action is to include the selected rows. But when \code{keep_selected
-#'    = FALSE}, the selected rows are excluded from the data.
+#'    = FALSE}, the selected rows are excluded from the data. Do not
+#'    set \code{keep_selected = FALSE} when there are more than one column in
+#'    \code{code_column}, as this may give unpredictable results.
+#'
+#' If you give a character value to \code{keep_selected}, the value of whether
+#'    a row was selected or not is output in an extra column with the name of
+#'    the character argument to \code{keep_selected}. All rows are then kept in
+#'    the data. This may be useful when more control of the inclusion and
+#'    exclusion is needed.
 #'
 #' @param data [\code{data.frame}]\cr
 #' PJS data from which a subset should be selected.
@@ -17,15 +29,27 @@
 #' Vector with the column names for the variables that is used in the selection.
 #' @param value_2_check [\code{character}]\cr
 #' Vector with the values that should be selected, see details and examples.
-#' @param keep_selected [\code{logical(1)}]\cr
-#' If \code{TRUE}, the selected rows are included, if \code{FALSE}, the selected columns
-#'     are excluded. Defaults to \code{TRUE}.
+#' @param keep_selected [\code{logical(1)}] | [\code{character(1)}]\cr
+#' If \code{TRUE}, the selected rows are included, if \code{FALSE}, the selected
+#'     columns are excluded, if a character, all rows are included with an
+#'     additional column given the name of the character string. Defaults to
+#'     \code{TRUE}.
 #'
 #' @return A \code{data.frame}.
 #'
 #' @author Petter Hopp Petter.Hopp@@vetinst.no
 #' @export
-
+#' @examples
+#' \dontrun{
+#' library(NVIpjsr)
+#'
+#' # Only included rows that have one of the codes in at least one of the selected columns
+#' PJSdata <- select_PJSdata_for_value(
+#'   data = PJSdata,
+#'   code_column = c("sakskonkl_analyttkode", "konkl_analyttkode", "res_analyttkode"),
+#'   value_2_check = c("01050305", "01130402", "01150101%"))
+#' }
+#'
 select_PJSdata_for_value <- function(data,
                                      code_column,
                                      value_2_check,
@@ -43,25 +67,23 @@ select_PJSdata_for_value <- function(data,
   checkmate::assert_data_frame(data, add = checks)
   checkmate::assert_subset(code_column, choices = colnames(data), add = checks)
   checkmate::assert_character(value_2_check, min.len = 1, add = checks)
-  checkmate::assert_flag(keep_selected, add = checks)
+  checkmate::assert(checkmate::check_flag(keep_selected),
+                    checkmate::check_names(keep_selected, type = "strict"),
+                    combine = "or",
+                    add = checks)
   # Report check-results
   checkmate::reportAssertions(checks)
 
-if (nrow(data) > 0) {
-  data$sPfv_sort_order <- 1:nrow(data)
-}
-
-  # transform value_2_check to regular expressions
-  value_2_check <- paste0("^", value_2_check, "$")
-  value_2_check <- gsub(pattern = "%$", replacement = "[[:digit:]]*", x = value_2_check, fixed = TRUE)
-  value_2_check <- gsub(pattern = "%-", replacement = "[[:digit:]]*-", x = value_2_check, fixed = TRUE)
+  if (nrow(data) > 0) {
+    data$sPfv_sort_order <- 1:nrow(data)
+  }
 
   # Identifies all variables in the index taking into consideration the PJS-levels of the code_column(s)
   index <- c("aar", "ansvarlig_seksjon", "innsendelsenr", "saksnr")
   for (k in 1:length(code_column)) {
     index <- union(index,
                    NVIpjsr::PJS_levels[which(NVIpjsr::PJS_levels[1:10, which(NVIpjsr::PJS_levels[which(NVIpjsr::PJS_levels$variable == code_column[k]), ] == 1)[1]] == 1), "variable"]
-)
+    )
   }
   # Keeps only variables that exist in PJSdata. Necessary as resnr will not be in PJSdata.
   index <- base::intersect(index, colnames(data))
@@ -78,9 +100,18 @@ if (nrow(data) > 0) {
   # }
   if (length(code_column) > 1) {
     ktr$combined_codes <- apply(ktr[, c(code_column)], 1, FUN = paste, collapse = "-")
+    value_2_check <- gsub(pattern = "%", replacement = "[[:digit:]]*", x = value_2_check, fixed = TRUE)
+    value_2_check_start <- paste0("^", value_2_check, "-")
+    value_2_check_middle <- paste0("-", value_2_check, "-")
+    value_2_check_end <- paste0("-", value_2_check, "$")
+    value_2_check <- unique(c(value_2_check_start, value_2_check_middle, value_2_check_end))
   } else {
-    ktr$combined_codes <- ktr[, code_column]
+    ktr[, "combined_codes"] <- ktr[, code_column]
     ktr[is.na(ktr$combined_codes), "combined_codes"] <- "NA"
+    # transform value_2_check to regular expressions
+    value_2_check <- paste0("^", value_2_check, "$")
+    value_2_check <- gsub(pattern = "%$", replacement = "[[:digit:]]*", x = value_2_check, fixed = TRUE)
+    value_2_check <- gsub(pattern = "%-", replacement = "[[:digit:]]*-", x = value_2_check, fixed = TRUE)
   }
 
 
@@ -89,25 +120,28 @@ if (nrow(data) > 0) {
     dplyr::rowwise() |>
     dplyr::mutate(select = max(unlist(lapply(value_2_check, grep, x = combined_codes)), 0))
 
-  # if (!is.null(include_missing_for) & length(code_column == 1)) {
-  #   ktr[which(is.na(ktr[, "combined_codes"])), "select"] <- 1
-  # }
+ if (inherits(keep_selected, what = "logical")) {
+    ktr$select <- as.logical(ktr$select)
+    if (isFALSE(keep_selected)) {ktr$select <- !ktr$select}
 
-  ktr$select <- as.logical(ktr$select)
-  if (isFALSE(keep_selected)) {
-ktr$select <- !ktr$select
-}
+    # ktr <- subset(ktr, ktr$select == TRUE)
+    ktr <- ktr[which(ktr$select == TRUE), ]
+    ktr[, c("combined_codes", "select")] <- c(NULL, NULL)
 
-  ktr <- subset(ktr, ktr$select == TRUE)
-  ktr[, c("combined_codes", "select")] <- c(NULL, NULL)
+    column_names <- colnames(data)
+    data <- merge(x = ktr, y = data, by = c(index, code_column), all.x = TRUE, all.y = FALSE, sort = TRUE)
+    data <- data[, column_names]
+  }
+ if (inherits(keep_selected, what = "character")) {
+      column_names <- c(colnames(data), c("select"))
+    data <- merge(x = ktr, y = data, by = c(index, code_column), all.x = TRUE, all.y = FALSE, sort = TRUE)
+    data <- data[, column_names]
+    colnames(data)[which(colnames(data) == "select")] <- keep_selected
+  }
 
-  column_names <- colnames(data)
-  data <- merge(x = ktr, y = data, by = c(index, code_column), all.x = TRUE, all.y = FALSE, sort = TRUE)
-  data <- data[, column_names]
-
-  if (nrow(data) > 0) {
-  data <- data[order(data$sPfv_sort_order), ]
-  data$sPfv_sort_order <- NULL
+    if (nrow(data) > 0) {
+    data <- data[order(data$sPfv_sort_order), ]
+    data$sPfv_sort_order <- NULL
   }
 
   return(data)

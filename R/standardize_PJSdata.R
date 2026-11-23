@@ -6,11 +6,12 @@
 #'
 #' @details The function performs the following standardizing of data extracted from PJS:
 #' \itemize{
-#'   \item The unnecessary columns konkl_provenr and vet_distriktnr are removed.
 #'   \item The column names are standardized using
 #'     \ifelse{html}{\code{\link[NVIdb:standardize_columns]{NVIdb::standardize_columns}}}{\code{NVIdb::standardize_columns}}.
+#'   \item The unnecessary columns konkl_provenr and vet_distriktnr are removed.
 #'   \item Numeric variables are transformed to numbers.
 #'   \item Date variables are transformed to date format.
+#'   \item Creates uttatt2 == uttatt. If uttatt is missing, uttatt2 == (mottatt - 1).
 #'   \item Character variables are trimmed for leading and trailing spaces.
 #'   \item The variables saksnr and, if possible, fagnr are generated.
 #'   \item Test data, i.e. saker with ansvarlig_seksjon in c("14", "99") are deleted.
@@ -46,26 +47,32 @@ standardize_PJSdata <- function(PJSdata, dbsource = "v2_sak_m_res") {
   # pjsDATA
   checkmate::assert_data_frame(PJSdata, add = checks)
   # dbsource
-  checkmate::assert_character(dbsource, len = 1, min.chars = 1, add = checks)
+  checkmate::assert_string(dbsource, min.chars = 1, add = checks)
 
   # Report check-results
   checkmate::reportAssertions(checks)
 
 
   # PERFORM STANDARDIZATION ----
-  # Remove unnecessary columns
+  # Standardize column names
+  PJSdata <- NVIdb::standardize_columns(data = PJSdata, dbsource = dbsource, property = "colnames")
+  # Remove unnecessary columns, must be done after column names are standardised
   PJSdata$konkl_provenr <- NULL
   PJSdata$vet_distriktnr <- NULL
 
-  # Standardize column names
-  PJSdata <- NVIdb::standardize_columns(data = PJSdata, dbsource = dbsource, property = "colnames")
 
   # Change to numeric for ID-numbers and counts
+  if ("verdi_mengde" %in% colnames(PJSdata)) {
+    PJSdata$verdi_mengde <- gsub(",", ".", PJSdata$verdi_mengde, fixed = TRUE)
+  }
   # Done before trimming character variables to reduce variables that needs to be trimmed
-  cols_2_modify <- intersect(colnames(PJSdata), c("aar", "innsendelsenr", "provenr", "delprovenr", "undnr",
-                                                  "resnr", "subundnr", "subresnr", "konklnr",
-                                                  "ant_prover", "ant_i_samleprove", "ant_delprover", "ant_i_samledelprove"))
+  cols_2_modify <- intersect(colnames(PJSdata),
+                             c("aar", "innsendelsenr", "provenr", "delprovenr",
+                               "undnr", "resnr", "subundnr", "subresnr", "konklnr",
+                               "ant_prover", "ant_i_samleprove", "ant_delprover",
+                               "ant_i_samledelprove", "verdi_mengde"))
   PJSdata[, cols_2_modify] <- lapply(PJSdata[, cols_2_modify], as.numeric)
+
 
   # Change to date for date-variables
   # Done before trimming character variables to reduce variables that needs to be trimmed
@@ -74,6 +81,20 @@ standardize_PJSdata <- function(PJSdata, dbsource = "v2_sak_m_res") {
                                                   "und_godkjent", "und_avsluttet",
                                                   "subund_godkjent", "subund_avsluttet", "subund_startet"))
   PJSdata[, cols_2_modify] <- lapply(PJSdata[, cols_2_modify], as.Date, format = "%d.%m.%y")
+
+  # Creates uttatt2 with values from mottatt if missing uttatt
+  # Requires both mottatt and uttatt to be in the data frame
+  if ("uttatt" %in% colnames(PJSdata) & "mottatt" %in% colnames(PJSdata)) {
+    PJSdata$uttatt2 <- PJSdata$uttatt
+    # Removes uttatt if larger than mottatt
+    PJSdata[which(PJSdata$uttatt2 > PJSdata$mottatt), "uttatt2"] <- NA
+    # Substitutes missing uttatt2 with mottatt - 1
+    PJSdata[is.na(PJSdata$uttatt2), "uttatt2"] <- PJSdata[is.na(PJSdata$uttatt2), "mottatt"] - 1
+    # base code for dplyr::relocate
+    col_uttatt <- which(colnames(PJSdata) == "uttatt")
+    PJSdata <- PJSdata[, c(colnames(PJSdata)[1:col_uttatt], "uttatt2",
+                           setdiff(colnames(PJSdata), c(colnames(PJSdata)[1:col_uttatt], "uttatt2")))]
+  }
 
   # Trim character variables
   cols_2_modify <- names(PJSdata)[vapply(PJSdata, is.character, logical(1))]
@@ -86,7 +107,8 @@ standardize_PJSdata <- function(PJSdata, dbsource = "v2_sak_m_res") {
   }
 
   # Delete test data, i.e. saker with ansvarlig_seksjon in c("14", "99")
-  PJSdata <- subset(PJSdata, !PJSdata$ansvarlig_seksjon %in% c("14", "99"))
+  # PJSdata <- subset(PJSdata, !PJSdata$ansvarlig_seksjon %in% c("14", "99"))
+  PJSdata <- PJSdata[which(!PJSdata$ansvarlig_seksjon %in% c("14", "99")), ]
 
 return(PJSdata)
 }

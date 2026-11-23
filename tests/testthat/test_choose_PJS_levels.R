@@ -1,4 +1,4 @@
-# library(NVIdb)
+# library(NVIpjsr)
 library(testthat)
 
 test_that("Choose variables from PJS levels", {
@@ -13,6 +13,7 @@ test_that("Choose variables from PJS levels", {
   # Removes vet_distriktnr and konkl_provenr
   PJStest$vet_distriktnr <- NULL
   PJStest$konkl_provenr <- NULL
+  PJStest$uttatt2 <- PJStest$uttatt
 
   # test levels
   correct_result <- c("aar", "ansvarlig_seksjon", "innsendelsenr", "hensiktkode", "rekvirenttype",
@@ -30,7 +31,7 @@ test_that("Choose variables from PJS levels", {
                       "stamme", "resirkuleringsanlegg", "salinitet", "temperatur", "dybde",
                       "sjosatt_tid", "vaksine", "vaksine_tid", "fortype", "lengde",
                       "helsestatuskode", "konklnr", "konkl_kjennelsekode", "konkl_analyttkode", "konkl_typekode",
-                      "eier_lokalitet", "postnr")
+                      "eier_lokalitet", "postnr", "uttatt2")
   sak_konkl <- choose_PJS_levels(PJStest, levels = c("sak", "prove", "konklusjon"))
 
   expect_identical(colnames(sak_konkl), correct_result)
@@ -56,7 +57,7 @@ test_that("Choose variables from PJS levels", {
                      "annen_aktortype", "annen_aktornr", "merknad", "fagkode", "fagnr",
                      "fagansvarlig_person", "karantene", "kartreferanse", "eierreferanse", "innsenderreferanse",
                      "okt_dodelighet", "epi_id", "utbrudd_id", "utbrudd_aar", "utbruddnr",
-                     "eier_lokalitet", "postnr"))
+                     "eier_lokalitet", "postnr", "uttatt2"))
 
   prove <- choose_PJS_levels(PJStest, levels = c("prove"))
 

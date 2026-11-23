@@ -6,7 +6,7 @@
 \alias{NVIpjsr-package}
 \title{NVIpjsr: Tools to facilitate working with PJS data}
 \description{
-Tools for retrieving, standardising, wrangling, preparing and reporting PJS data and EOS data. NVIpjsr was created by separating out PJS-functions from NVIdb. Further development of and creation of new PJS-functions will take place within NVIpjsr.
+Tools for retrieving, standardising, wrangling, preparing and reporting PJS data and EOS data. NVIpjsr was created by separating out PJS-functions from NVIdb. Further development of and creation of new functions to handle PJSdata are done within NVIpjsr.
 }
 \seealso{
 Useful links:
@@ -21,7 +21,8 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Johan Åkerstedt \email{Johan.Akerstedt@vetinst.no}
+  \item Petter Hopp \email{Petter.Hopp@vetinst.no} (\href{https://orcid.org/0000-0002-8695-0378}{ORCID})
+  \item Johan Åkerstedt \email{Johan.Akerstedt@vetinst.no} (\href{https://orcid.org/0000-0001-7887-6887}{ORCID})
 }
 
 Other contributors:

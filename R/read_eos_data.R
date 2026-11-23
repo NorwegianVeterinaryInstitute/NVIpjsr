@@ -1,6 +1,6 @@
 #' @title Read EOS data from RaData
-#' @description Reads EOS data from RaData. Includes historical data if these exists.
-#'     It is possible to limit the data to one or more years.
+#' @description Reads EOS data from RaData. Includes historical data if these
+#'     exists. It is possible to limit the data to one or more years.
 #' @details \code{read_eos_data} uses
 #'     \ifelse{html}{\code{\link[data.table:fread]{data.table::fread}}}{\code{data.table::fread}}
 #'     to read the data with the settings \code{showProgress = FALSE} and
@@ -8,7 +8,8 @@
 #'     \ifelse{html}{\code{\link[data.table:fread]{data.table::fread}}}{\code{data.table::fread}}
 #'     if necessary.
 #'
-#' The \code{eos_table} name is the same name as the name as in the EOS data base.
+#' The \code{eos_table} name is the same name as the name as in the EOS data
+#'     base.
 #'
 #' @param from_path [\code{character(1)}]\cr
 #'     Path for raw data from eos data.
@@ -44,14 +45,15 @@
 #'                                    year = c(2022:2024))
 #' }
 #'
-read_eos_data <- function(eos_table,
-                          from_path = paste0(NVIdb::set_dir_NVI("EOS"), "RaData"),
-                          year = NULL,
-                          colClasses = "character",
-                          encoding = "UTF-8",
-                          ...) {
+read_eos_data <- function(
+    eos_table,
+    from_path = paste0(NVIdb::set_dir_NVI("EOS"), "RaData"),
+    year = NULL,
+    colClasses = "character",
+    encoding = "UTF-8",
+    ...) {
 
-  # PREPARE ARGUMENTS BEFORE ARGUMENT CHECKING
+  # PREPARE ARGUMENTS BEFORE ARGUMENT CHECKING ----
   # Removing ending "/" and "\\" from pathnames
   from_path <- sub("/+$|\\\\+$", "", from_path)
   # Change any character year to numeric
@@ -64,7 +66,9 @@ read_eos_data <- function(eos_table,
   ## eos_table
   checkmate::assert_string(eos_table, min.chars = 1, add = checks)
   ## from_path / filename
-  checkmate::assert_file_exists(file.path(from_path, paste0(eos_table, ".csv")), access = "r", add = checks)
+  checkmate::assert_file_exists(file.path(from_path, paste0(eos_table, ".csv")),
+                                access = "r",
+                                add = checks)
   ## year
   checkmate::assert_integerish(year,
                                lower = 1995,
@@ -80,50 +84,59 @@ read_eos_data <- function(eos_table,
                               all.missing = FALSE,
                               null.ok = TRUE,
                               add = checks)
-
   ## encoding
   checkmate::assert_subset(encoding, choices = c("UTF-8", "latin1"), add = checks)
-
   # Report check-results
   checkmate::reportAssertions(checks)
 
-
+# IMPORT EOS DATA ----
   # Import of data from csv-files retrieved from EOS
   # EOS inneholder data fra siste og foregående år og antas å være i kontinuerlig endring
-  eos_data <- data.table::fread(file = file.path(from_path, paste0(eos_table, ".csv")),
+  eos_data <- data.table::fread(file = file.path(from_path,
+                                                 paste0(eos_table, ".csv")),
                                  colClasses = colClasses,
                                  encoding = encoding,
                                  showProgress = FALSE,
                                  data.table = FALSE,
                                  ...)
-
-  column_names <- colnames(eos_data)
-  colnames(eos_data) <- tolower(column_names)
+  colnames(eos_data) <- tolower(colnames(eos_data))
 
   # Import av historiske data fra EOS
   # EOS-historikkfiler oppdateres 1 x årlig. Data hentes ut etter oppdatering og lagres i csv-filer
   # Hentes derfor fra csv-filen for bruk i OK-statistikken
   if (file.exists(file.path(from_path, paste0(eos_table, "_historikk.csv")))) {
-    eos_data_historikk <- data.table::fread(file = file.path(from_path, paste0(eos_table, "_historikk.csv")),
+    eos_data_historikk <- data.table::fread(file = file.path(from_path,
+                                                             paste0(eos_table, "_historikk.csv")),
                                              colClasses = colClasses,
                                              encoding = encoding,
                                              showProgress = FALSE,
                                              data.table = FALSE,
                                              ...)
 
-    # Fjerner år fa historikktabellen som også ligger i driftstabellen. Setter deretter sammen tabellene
+    # Removes data from historic table that also is in the current table. This
+    # may occur, in particular at the time of moving data to the historic tables.
+    # This is done by taking all years from the current table and all previous
+    # years from the historic table. Thereafter the tables are combined.
     first_year_in_eos_data <- min(substr(eos_data$saksnr, 1, 4))
-    colnames(eos_data_historikk) <- tolower(column_names)
-    eos_data_historikk <- subset(eos_data_historikk, substr(eos_data_historikk$saksnr, 1, 4) < first_year_in_eos_data)
-    eos_data <- rbind(eos_data, eos_data_historikk)
+    colnames(eos_data_historikk) <- tolower(colnames(eos_data_historikk))
+    # eos_data_historikk <- subset(eos_data_historikk, substr(eos_data_historikk$saksnr, 1, 4) < first_year_in_eos_data)
+    eos_data_historikk <- eos_data_historikk[which(substr(eos_data_historikk$saksnr, 1, 4) < first_year_in_eos_data), ]
+    # align columns before rbind, remove fagnr
+    eos_data[, base::setdiff(colnames(eos_data_historikk), colnames(eos_data))] <- NA
+    eos_data_historikk[, base::setdiff(colnames(eos_data), colnames(eos_data_historikk))] <- NA
+    eos_data <- rbind(eos_data, eos_data_historikk[, colnames(eos_data)])
+    eos_data$fagnr <- NULL
   }
 
+# Performs selection for year -----
   if (!is.null(year)) {
-    eos_data <- subset(eos_data, substr(eos_data$saksnr, 1, 4) %in% year)
+    # eos_data <- subset(eos_data, substr(eos_data$saksnr, 1, 4) %in% year)
+    eos_data <- eos_data[which(substr(eos_data$saksnr, 1, 4) %in% year), ]
   }
 
-  colnames(eos_data) <- column_names
+# # Is this necessary?
+#   colnames(eos_data) <- column_names
+
+# RETURN DATA ----
   return(eos_data)
 }
-
-#

@@ -12,11 +12,11 @@ test_that("Test Standardize PJSdata and column change column names and class", {
   PJStest2 <- standardize_PJSdata(PJSdata = PJStest)
 
   # test name changes
-  correct_result <- c("innsendelsenr", "eier_lokalitettype", "mottatt", "uttatt", "avsluttet",
+  correct_result <- c("innsendelsenr", "eier_lokalitettype", "mottatt", "uttatt", "uttatt2", "avsluttet",
                       "komnr", "annen_aktor_rollekode", "annen_aktortype", "annen_aktornr", "utbruddnr", "provenr",
                       "fysiologisk_stadiumkode", "uttatt_parprove", "mottatt_parprove", "merknad_prove", "delprovenr",
                       "undnr", "und_godkjent", "und_avsluttet", "resnr", "res_analyttkode",
-                      "enhetkode", "res_kjennelsekode", "konklnr", "konkl_provenr", "konkl_kjennelsekode",
+                      "enhetkode", "res_kjennelsekode", "konklnr", "konkl_kjennelsekode",
                       "konkl_typekode", "eier_lokalitet", "saksnr")
 
   expect_identical(setdiff(colnames(PJStest2), colnames(PJStest)), correct_result)
@@ -35,7 +35,7 @@ test_that("Test Standardize PJSdata and column change column names and class", {
 
   # test Date class
     expect_identical(names(which(unlist(lapply(PJStest2, class)) == "Date")),
-                     intersect(colnames(PJStest2), c("mottatt", "uttatt", "avsluttet", "sak_forst_avsluttet",
+                     intersect(colnames(PJStest2), c("mottatt", "uttatt", "uttatt2", "avsluttet", "sak_forst_avsluttet",
                                                      "uttatt_parprove", "mottatt_parprove",
                                                      "und_godkjent", "und_avsluttet")))
 
@@ -48,7 +48,7 @@ test_that("errors for standardize_PJSdata", {
   # PJStest <- readRDS("./tests/testthat/PJS_testdata.rds")
 
   expect_error(standardize_PJSdata(PJSdata = PJStest, dbsource = NULL),
-               regexp = "Variable 'dbsource': Must be of type 'character'")
+               regexp = "Variable 'dbsource': Must be of type 'string'")
 
   expect_error(standardize_PJSdata(PJSdata = "no_data"),
                regexp = "Variable 'PJSdata': Must be of type 'data.frame', not 'character'.")

@@ -121,7 +121,7 @@
 #'     "pjscode_2_descriptions.csv". If more than one code type should be translated,
 #'     they can be given in the vector. You may also use argument
 #'     \code{PJS_variable_type = "auto"}, if \code{code_colname} have standardized
-#'     PJS column names only, see details.
+#'     PJS column names only, see details. Defaults to \code{"auto"}.
 #' @param code_colname [\code{character}] \cr
 #'     The name of the column with codes that should be translated. If several codes
 #'     should be translated, a vector with the names of the coded variables should be given.
@@ -129,7 +129,7 @@
 #'     The name of the new column with the text describing the code. If several
 #'     codes should be translated, a vector with the new column names should be
 #'     given. You may also use argument \code{new_column = "auto"}, if \code{code_colname}
-#'     have standardized PJS column names only, see details.
+#'     have standardized PJS column names only, see details. Defaults to \code{"auto"}.
 #' @param position [\code{character}] \cr
 #'     Position for the new columns, can be one of c("first", "left", "right",
 #'     "last", "keep"). If several codes should be translated, either one value
@@ -195,6 +195,10 @@
 #'                                     code_colname = c("artkode", "hensiktkode", "konklusjonkode"),
 #'                                     new_column = c("auto"))
 #'
+#' # When using default input (as above), the code above can be shortened to:
+#' newdata3 <- add_PJS_code_description(olddata,
+#'                                     code_colname = c("artkode", "hensiktkode", "konklusjonkode"))
+#'
 #' # Translating art with species and breed names to only species names
 #' # First the text in art is back-translated to the artkode
 #' newdata4 <- add_PJS_code_description(data = olddata,
@@ -205,7 +209,7 @@
 #'                                      impute_old_when_missing = TRUE)
 #'
 #' # Thereafter, the code is translated to art
-#' # By using `impute_old_when_missing = TRUE`, you ensure that text that cannot
+#' # By using 'impute_old_when_missing = TRUE', you ensure that text that cannot
 #' # be translated back to code, is reported as text in the end result.
 #' newdata4 <- add_PJS_code_description(data = newdata4,
 #'                                      PJS_variable_type = "art",
@@ -218,9 +222,9 @@
 #'
 add_PJS_code_description <- function(data,
                                      translation_table = PJS_codes_2_text,
-                                     PJS_variable_type,
+                                     PJS_variable_type = "auto",
                                      code_colname,
-                                     new_column,
+                                     new_column = "auto",
                                      position = "right",
                                      overwrite = FALSE,
                                      backward = FALSE,
@@ -233,7 +237,9 @@ add_PJS_code_description <- function(data,
     }
     PJS_types_selected <- as.data.frame(code_colname) |>
       dplyr::left_join(code_description_colname, by = "code_colname")
-    PJS_types_selected <- subset(PJS_types_selected, !is.na(PJS_types_selected$type))
+    # PJS_types_selected <- subset(PJS_types_selected, !is.na(PJS_types_selected$type))
+    # PJS_types_selected <- PJS_types_selected[which(!is.na(PJS_types_selected$type)), ]
+    PJS_types_selected <- PJS_types_selected[!is.na(PJS_types_selected$type), ]
   }
 
   # ARGUMENT CHECKING ----
@@ -357,7 +363,8 @@ add_PJS_code_description <- function(data,
       code_2_description <- code_2_description |>
         dplyr::add_count(dplyr::across(c("type", "kode")), name = "antall")
 
-      code_2_description <- subset(code_2_description, code_2_description$antall == 1)
+      # code_2_description <- subset(code_2_description, code_2_description$antall == 1)
+      code_2_description <- code_2_description[which(code_2_description$antall == 1), ]
       code_2_description$antall <- NULL
 
       # Transforms code_colname in data to lower case.
