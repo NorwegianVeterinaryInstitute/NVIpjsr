@@ -13,7 +13,7 @@
 `NVIpjsr`tools for retrieving, standardising, wrangling, preparing and
 reporting PJS data and EOS data. NVIpjsr was created by separating out
 PJS-functions from NVIdb. Further development of and creation of new
-PJS-functions will take place within NVIpjsr.
+functions to handle PJSdata are done within NVIpjsr.
 
 `NVIpjsr` is part of `NVIverse`, a collection of R-packages with tools
 to facilitate data management and data reporting at the Norwegian
@@ -98,7 +98,7 @@ The `NVIpjsr` package needs to be attached.
 `NVIpjsr` tools for retrieving, standardising, wrangling, preparing and
 reporting PJS data and EOS data. NVIpjsr was created by separating out
 PJS-functions from NVIdb. Further development of and creation of new
-PJS-functions will take place within NVIpjsr.
+functions to handle PJSdata are done within NVIpjsr.
 
 #### Further documentation
 
