@@ -1,3 +1,25 @@
+# NVIpjsr 0.3.0.9000 - (2026-##-##)
+
+## New features:
+
+-
+
+
+## Bug fixes:
+
+-
+
+
+## Other changes:
+
+-
+
+
+## BREAKING CHANGES:
+
+-
+
+
 # NVIpjsr 0.3.0 - (2026-11-19)
 
 ## New features:
